@@ -25,9 +25,35 @@ func topWords(path string, numWords int, charThreshold int) []WordCount {
 	checkError(err)
 	// HINT: You may find the `strings.Fields` and `strings.ToLower` functions helpful
 	// HINT: To keep only alphanumeric characters, use the regex "[^0-9a-zA-Z]+"
+
+	// strip non-alphanumeric characters, lowercase, split into tokens
 	re := regexp.MustCompile("[^0-9a-zA-Z]+")
-	cleaned := re.ReplaceAllString(input, " ")
-	return nil
+	cleaned := re.ReplaceAllString(string(bytes), " ")
+	tokens := strings.Fields(strings.ToLower(cleaned))
+
+
+	// count frequencies skip words below charThreshold
+	counts := make(map[string]int)
+	for _, word := range tokens {
+		if len(word) >= charThreshold {
+			counts[word]++
+		}
+	}
+
+	// build slice of WordCount
+	wcs := make([]WordCount, 0, len(counts))
+	for word, count := range counts {
+		wcs = append(wcs, WordCount{Word: word, Count: count})
+	}
+
+	// Sort and return top K
+	sortWordCounts(wcs)
+	if numWords > len(wcs) {
+		numWords = len(wcs)
+	}
+	return wcs[:numWords]
+
+
 }
 
 // A struct that represents how many times a word is observed in a document
